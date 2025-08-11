@@ -3,32 +3,30 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
+
 
 class ClientController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+
+     public function index() {
+        $clients = Auth::user()->clients;
+        return view('clients.index', compact('clients'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+    public function create() { return view('clients.create'); }
+
+    public function store(Request $request) {
+        $request->validate(['name' => 'required', 'phone' => 'required']);
+        Auth::user()->clients()->create($request->all());
+        return redirect()->route('clients.index')->with('success', 'Client created.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
     /**
      * Display the specified resource.

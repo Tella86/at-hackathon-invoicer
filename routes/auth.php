@@ -10,6 +10,17 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use App\Http\Controllers\PaymentWebhookController;
+use App\Http\Controllers\UssdWebhookController;
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+// Africa's Talking Webhooks
+Route::post('/webhooks/payments', [PaymentWebhookController::class, 'handle']);
+Route::post('/webhooks/ussd', [UssdWebhookController::class, 'handle']);
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -8,59 +7,34 @@ use AfricasTalking\SDK\AfricasTalking;
 
 class SendOverdueInvoiceReminders extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:send-overdue-invoice-reminders';
+    protected $signature = 'invoices:remind';
+    protected $description = 'Send SMS reminders for overdue invoices';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
+    public function handle()
+    {
+        $this->info('Checking for overdue invoices...');
+        $overdueInvoices = Invoice::where('due_date', '<', now())
+            ->where('status', 'Sent')->get(); // Only remind for sent, not draft/paid
 
-    /**
-     * Execute the console command.
-     */
-    // In the handle() method
-public function handle()
-{
-    $this->info('Checking for overdue invoices...');
+        if ($overdueInvoices->isEmpty()) {
+            $this->info('No overdue invoices found.');
+            return 0;
+        }
 
-    // Find invoices that are past their due_date and are not yet 'Paid'
-    $overdueInvoices = Invoice::where('due_date', '<', now())
-                              ->where('status', '!=', 'Paid')
-                              ->get();
+        $AT = new AfricasTalking(env('AFRICASTALKING_USERNAME'), env('AFRICASTALKING_API_KEY'));
+        $sms = $AT->sms();
 
-    if ($overdueInvoices->isEmpty()) {
-        $this->info('No overdue invoices found.');
+        foreach ($overdueInvoices as $invoice) {
+            $message = "Hi {$invoice->client->name}, a reminder that invoice #{$invoice->invoice_number} for KES {$invoice->total_amount} is overdue.";
+            try {
+                $sms->send(['to' => $invoice->client->phone, 'message' => $message]);
+                $invoice->update(['status' => 'Overdue']);
+                $this->info("Reminder sent for invoice #{$invoice->invoice_number}");
+            } catch (\Exception $e) {
+                $this->error("Failed for invoice #{$invoice->invoice_number}: " . $e->getMessage());
+            }
+        }
+        $this->info('Overdue reminder process complete.');
         return 0;
     }
-
-    // Initialize Africa's Talking SDK
-    $username = config('services.africastalking.username');
-    $apiKey   = config('services.africastalking.api_key');
-    $AT       = new AfricasTalking($username, $apiKey);
-    $sms      = $AT->sms();
-
-    foreach ($overdueInvoices as $invoice) {
-        $message = "Hi {$invoice->client->name}, a friendly reminder that your invoice #{$invoice->invoice_number} for KES {$invoice->total_amount} is overdue. Please pay soon.";
-
-        try {
-            $sms->send([
-                'to'      => $invoice->client->phone,
-                'message' => $message
-            ]);
-            $this->info("Reminder sent for invoice #{$invoice->invoice_number}");
-        } catch (Exception $e) {
-            $this->error("Failed to send reminder for invoice #{$invoice->invoice_number}: " . $e->getMessage());
-        }
-    }
-
-    $this->info('Overdue reminder process complete.');
-    return 0;
-}
 }

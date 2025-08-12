@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 
 
 class ClientController extends Controller
@@ -59,4 +60,16 @@ class ClientController extends Controller
     {
         //
     }
+    // app/Http/Controllers/ClientController.php
+public function invite(Client $client)
+{
+    $client->invitation_token = Str::random(32);
+    $client->invitation_expires_at = now()->addDays(7);
+    $client->save();
+
+    // Send an email/notification with the invitation link
+    // Notification::send($client, new ClientInvitationNotification($client->invitation_token));
+
+    return back()->with('success', 'Invitation sent to ' . $client->name);
+}
 }

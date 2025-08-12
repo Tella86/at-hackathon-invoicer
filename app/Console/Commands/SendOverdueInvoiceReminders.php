@@ -21,7 +21,7 @@ class SendOverdueInvoiceReminders extends Command
             return 0;
         }
 
-        $AT = new AfricasTalking(env('AFRICASTALKING_USERNAME'), env('AFRICASTALKING_API_KEY'));
+        $AT = new AfricasTalking(config('services.africastalking.username'), config('services.africastalking.api_key'));
         $sms = $AT->sms();
 
         foreach ($overdueInvoices as $invoice) {

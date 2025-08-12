@@ -1,10 +1,7 @@
 <?php
 namespace App\Http\Controllers;
-use App\Models\Invoice;
-use App\Models\Client;
-use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
@@ -20,6 +17,10 @@ class DashboardController extends Controller
 
         $recentInvoices = $user->invoices()->with('client')->latest()->take(5)->get();
 
-        return view('dashboard', compact('stats', 'recentInvoices'));
+        // The user->registration_code will now exist thanks to our command
+          $registrationLink = route('client.register.form', ['code' => $user->registration_code]);
+
+    // Pass all data to the view
+    return view('dashboard', compact('stats', 'recentInvoices', 'registrationLink'));
     }
 }

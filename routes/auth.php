@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\UssdWebhookController;
+use App\Http\Controllers\ClientForgotPasswordController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -44,6 +45,8 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+        Route::get('/forgot-password', [ClientForgotPasswordController::class, 'create'])->name('password.request');
+Route::post('/forgot-password', [ClientForgotPasswordController::class, 'store'])->name('password.email');
 });
 
 Route::middleware('auth')->group(function () {

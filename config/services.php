@@ -6,12 +6,6 @@ return [
     |--------------------------------------------------------------------------
     | Third Party Services
     |--------------------------------------------------------------------------
-    |
-    | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
-    |
     */
 
     'postmark' => [
@@ -23,7 +17,7 @@ return [
     ],
 
     'ses' => [
-        'key' => env('AWS_ACCESS_KEY_ID'),
+        'key'    => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
@@ -33,6 +27,13 @@ return [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
+    ],
+
+    // ✅ Added Africa's Talking
+    'africastalking' => [
+        'username'     => env('AFRICASTALKING_USERNAME', 'ezems-hotspot'),
+        'api_key'      => env('AFRICASTALKING_API_KEY', 'atsk_e19dbf8a03ae1927856a3a8cbbd8508a2bf01c05d81a07490738d12572e0a6a65a7bcb7e'),
+        'product_name' => env('AFRICASTALKING_PRODUCT_NAME', 'AFRICASTALKING'),
     ],
 
 ];

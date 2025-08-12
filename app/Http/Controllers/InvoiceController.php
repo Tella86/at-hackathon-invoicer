@@ -6,15 +6,27 @@ use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use AfricasTalking\SDK\AfricasTalking;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth; // <--- MAKE SURE THIS LINE IS HERE
 
 class InvoiceController extends Controller
 {
-    public function index() {
-        $invoices = Auth::user()>invoices()->with('client')->latest()->get();
+    /**
+     * Display a listing of the invoices for the authenticated user.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index()
+    {
+        // THIS IS THE CORRECTED CODE
+        // 1. Get the authenticated user.
+        // 2. Call the invoices() relationship on the user object.
+        $invoices = Auth::user()->invoices()->with('client')->latest()->get();
+
+        // Pass the fetched invoices to the view.
         return view('invoices.index', compact('invoices'));
     }
 
+    // ... The rest of your controller methods (create, store, etc.)
     public function create() {
         $clients = Auth::user()->clients;
         return view('invoices.create', compact('clients'));
@@ -62,8 +74,10 @@ class InvoiceController extends Controller
     }
 
     public function send(Invoice $invoice) {
-        $username = env('AFRICASTALKING_USERNAME');
-        $apiKey = env('AFRICASTALKING_API_KEY');
+        $username    = config('services.africastalking.username');
+        $apiKey      = config('services.africastalking.api_key');
+        $productName = config('services.africastalking.product_name');
+
         $AT = new AfricasTalking($username, $apiKey);
         $sms = $AT->sms();
 
@@ -78,4 +92,5 @@ class InvoiceController extends Controller
             return back()->with('error', 'SMS failed: '.$e->getMessage());
         }
     }
+
 }

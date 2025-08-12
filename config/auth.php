@@ -36,11 +36,17 @@ return [
     */
 
     'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+    'web' => [ // This is for your business users
+        'driver' => 'session',
+        'provider' => 'users',
     ],
+    'client' => [ // This is our new guard for clients
+        'driver' => 'session',
+        'provider' => 'clients',
+    ],
+],
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -60,16 +66,15 @@ return [
     */
 
     'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
-        ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+    'users' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\User::class,
     ],
+    'clients' => [ // Define the client provider
+        'driver' => 'eloquent',
+        'model' => App\Models\Client::class,
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------
@@ -91,13 +96,19 @@ return [
     */
 
     'passwords' => [
-        'users' => [
-            'provider' => 'users',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
-            'throttle' => 60,
-        ],
+    'users' => [
+        'provider' => 'users',
+        'table' => 'password_reset_tokens',
+        'expire' => 60,
+        'throttle' => 60,
     ],
+ 'clients' => [
+        'provider' => 'clients', // Use the 'clients' provider we defined earlier
+        'table' => 'password_reset_tokens', // We can use the same table
+        'expire' => 60,
+        'throttle' => 60,
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------
